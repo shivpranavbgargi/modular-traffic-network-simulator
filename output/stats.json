@@ -1,0 +1,12 @@
+{
+  "generated": 37,
+  "completed": 30,
+  "active": 11,
+  "avg_wait": 3.433333333333333,
+  "avg_travel_time": 6.133333333333334,
+  "avg_queue_length": 2.9,
+  "throughput": 0.75,
+  "busiest_road": "R9",
+  "busiest_road_entries": 19,
+  "congestion_alpha": 1.5
+}
