@@ -1,4 +1,4 @@
-# Traffic Simulator
+# Modular Network Traffic Simulator
 
 A small modular traffic simulator for a directed road network with junctions,
 sources, sinks, queueing, congestion-aware adaptive routing, basic statistics,
@@ -42,7 +42,7 @@ interesting part.
 ## Project structure
 
 ```text
-v3/
+modular-network-traffic-simulator/
 ├── main.py                 # network definition + entry point
 ├── network.json            # example: 5-junction network, single destination
 ├── network-2.json          # example: 7-junction network, two destinations
