@@ -36,19 +36,31 @@ At every tick:
 
 ---
 
+## Example simulations
+
+### Multi-destination traffic
+
+![network-2 simulation](docs/network-2.gif)
+
+### Grid-style traffic
+
+![test simulation](docs/test.gif)
+
+---
+
 ## What the dots around nodes mean
 
 The dots around a junction are **cars waiting in that junction's output buffers**.
 
 They are not random decoration and they are not cars currently travelling on the road.
 
-| Visual element | Meaning |
-|---|---|
-| Moving colored circles on roads | Cars currently travelling on roads |
-| Small colored dots near a junction | Cars waiting in that junction's output queue |
-| Dots near a specific outgoing direction | Cars waiting to take that output road |
-| `+N` near an output path | More than 10 cars are waiting on that output side, so the simulator collapses the extra cars into a count |
-| Road color green/yellow/red | Road occupancy / congestion level |
+| Visual element                          | Meaning                                                                                                   |
+| --------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Moving colored circles on roads         | Cars currently travelling on roads                                                                        |
+| Small colored dots near a junction      | Cars waiting in that junction's output queue                                                              |
+| Dots near a specific outgoing direction | Cars waiting to take that output road                                                                     |
+| `+N` near an output path                | More than 10 cars are waiting on that output side, so the simulator collapses the extra cars into a count |
+| Road color green/yellow/red             | Road occupancy / congestion level                                                                         |
 
 Example:
 
@@ -66,20 +78,20 @@ This means cars are queued at junction `J1` for the outgoing road in that direct
 
 ## Main features
 
-- Directed road network with named junctions and roads
-- Finite road capacity and per-road travel time
-- Per-junction **output buffers** instead of unbounded input buffers
-- Configurable output buffer capacity
-- Optional per-junction output buffer capacity from JSON
-- Source throttling when no usable route currently exists
-- Adaptive routing based on congestion
-- Automatic rerouting when a preferred output queue is full
-- Anti-U-turn behavior to reduce immediate oscillation
-- Multiple traffic sources and multiple destinations
-- Constant and Poisson traffic generation modes
-- Animated GIF output
-- Per-run JSON statistics
-- PDF statistics report with queue, throughput, wait-time, and road-occupancy plots
+* Directed road network with named junctions and roads
+* Finite road capacity and per-road travel time
+* Per-junction **output buffers** instead of unbounded input buffers
+* Configurable output buffer capacity
+* Optional per-junction output buffer capacity from JSON
+* Source throttling when no usable route currently exists
+* Adaptive routing based on congestion
+* Automatic rerouting when a preferred output queue is full
+* Anti-U-turn behavior to reduce immediate oscillation
+* Multiple traffic sources and multiple destinations
+* Constant and Poisson traffic generation modes
+* Animated GIF output
+* Per-run JSON statistics
+* PDF statistics report with queue, throughput, wait-time, and road-occupancy plots
 
 ---
 
@@ -87,393 +99,72 @@ This means cars are queued at junction `J1` for the outgoing road in that direct
 
 ```text
 modular-road-traffic-simulator/
-├── main.py                 # JSON loader + entry point
-├── network.json            # example road network
-├── network-2.json          # example road network
-├── test.json               # example/test road layout
+├── main.py
+├── network.json
+├── network-2.json
+├── test.json
 ├── requirements.txt
-├── docs/                   # sample GIF outputs
+├── docs/
+│   ├── network-2.gif
+│   └── test.gif
 └── traffic_sim/
-    ├── __init__.py
-    ├── vehicles.py         # car state
-    ├── roads.py            # road capacity + travel-time model
-    ├── junctions.py        # junction output buffers
-    ├── sources.py          # traffic source models
-    ├── sinks.py            # destination markers
-    ├── router.py           # shortest-path routing
-    ├── simulator.py        # core simulation engine
-    └── visualization.py    # GIF rendering
-```
-
----
-
-## Installation
-
-Requires Python 3.10+.
-
-```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-```
-
-Typical requirements are:
-
-```text
-matplotlib
-networkx
-imageio
-Pillow
 ```
 
 ---
 
 ## Running the simulator
 
-Run the built-in demo network:
-
 ```bash
-python3 main.py
+python3 main.py network-2.json
 ```
 
-Run from a JSON road-network file:
-
-```bash
-python3 main.py test.json
-```
-
-Each run writes output files into `output/`:
-
-| File | Purpose |
-|---|---|
-| `output/simulation.gif` | Animated road traffic playback |
-| `output/stats.json` | Summary statistics |
-| `output/stats.pdf` | Plots for queue length, throughput, wait time, and road occupancy |
-| `output/frames/*.png` | Individual frames used to build the GIF |
-
----
-
-## JSON network format
-
-A road network JSON file defines junctions, roads, sources, sinks, and optional display labels.
-
-```json
-{
-  "output_buffer_capacity": 10,
-
-  "junctions": [
-    {"name": "J_A", "pos": [0, 0]},
-    {"name": "J_B", "pos": [1, 0], "output_buffer_capacity": 20},
-    {"name": "J_C", "pos": [2, 0]}
-  ],
-
-  "roads": [
-    {"name": "R_AB", "from": "J_A", "to": "J_B", "capacity": 3, "travel_time": 2},
-    {"name": "R_BC", "from": "J_B", "to": "J_C", "capacity": 3, "travel_time": 2}
-  ],
-
-  "sources": [
-    {"id": "S1", "junction": "J_A", "destination": "J_C", "mode": "constant", "interval": 2}
-  ],
-
-  "sinks": ["J_C"],
-
-  "labels": {
-    "J_C": "Destination"
-  }
-}
-```
-
-### `output_buffer_capacity`
-
-There are two levels of output-buffer configuration:
-
-```json
-"output_buffer_capacity": 10
-```
-
-This is the global default for all junctions.
-
-A junction can override it:
-
-```json
-{"name": "J_B", "pos": [1, 0], "output_buffer_capacity": 20}
-```
-
-This means:
-
-- `J_B` can hold up to 20 cars per output buffer, depending on the simulator implementation.
-- Junctions without this field use the global default.
-- If neither is provided, the simulator uses its built-in default.
-
----
-
-## Roads
-
-A road is directed. Cars can move only from `from` to `to`.
-
-```json
-{
-  "name": "R_AB",
-  "from": "J_A",
-  "to": "J_B",
-  "capacity": 3,
-  "travel_time": 2
-}
-```
-
-Meaning:
-
-- `capacity`: maximum cars that can be on the road at once
-- `travel_time`: number of ticks needed to traverse the road
-
-Road capacity is separate from output-buffer capacity.
-
-```text
-output queue at junction -> road capacity -> next junction
-```
-
-A car can leave the output queue and enter the road only if the road has space.
-
----
-
-## Sources
-
-Sources generate cars.
-
-### Constant source
-
-```json
-{
-  "id": "S1",
-  "junction": "J_A",
-  "destination": "J_C",
-  "mode": "constant",
-  "interval": 2
-}
-```
-
-This attempts to generate one car every 2 ticks.
-
-### Poisson source
-
-```json
-{
-  "id": "S2",
-  "junction": "J_A",
-  "destination": "J_C",
-  "mode": "poisson",
-  "rate": 0.4
-}
-```
-
-This generates a random number of cars per tick using a Poisson process.
-
-A generated car is not blindly inserted. The source first checks whether a usable path to the destination currently exists. If every useful output buffer is full, the source throttles.
-
----
-
-## Sinks
-
-A sink marks a destination junction.
-
-```json
-"sinks": ["J_C"]
-```
-
-A car completes its trip when its current junction equals its destination.
-
-Sinks are also used by the visualizer to color and label destination nodes.
-
----
-
-## Output buffers
-
-Each junction has one output buffer per outgoing road.
-
-For example, if `J_A` has these outgoing roads:
-
-```text
-J_A -> J_B
-J_A -> J_D
-J_A -> J_E
-```
-
-then internally it behaves like:
-
-```text
-J_A output buffer for road J_A -> J_B
-J_A output buffer for road J_A -> J_D
-J_A output buffer for road J_A -> J_E
-```
-
-Cars wait in the buffer corresponding to the road they are trying to take.
-
-This is why the dots appear around different sides of a junction. A dot near the east side means a car is waiting for an east-going output road. A dot near the north side means a car is waiting for a north-going output road.
-
----
-
-## Source throttling and backpressure
-
-The simulator tries to avoid injecting cars into a part of the road map that has no currently usable route to the destination.
-
-If a source wants to create a car but all valid output paths are blocked, the source skips generation for that tick.
-
-This creates a simple backpressure effect:
-
-```text
-full downstream output queues
-        ↓
-upstream junctions cannot forward cars
-        ↓
-sources eventually stop injecting new cars
-```
-
-So instead of infinite queues forming everywhere, traffic pressure propagates backward toward the source.
-
----
-
-## Adaptive routing
-
-Cars do not always follow a fixed shortest path. At each junction, the simulator can recompute the next road using road travel time and congestion.
-
-A typical cost model is:
-
-```text
-road_cost = travel_time × (1 + congestion_alpha × occupancy)
-```
-
-where:
-
-```text
-occupancy = cars_on_road / road_capacity
-```
-
-Higher `congestion_alpha` makes cars avoid congested roads more aggressively.
-
-| `congestion_alpha` | Behavior |
-|---|---|
-| `0` | Mostly shortest-travel-time routing |
-| `1` to `2` | Mild congestion avoidance |
-| `3+` | Stronger load balancing across alternate roads |
-
-If the best output queue is full, the simulator tries another valid outgoing road that can still reach the destination.
-
----
-
-## Tick order
-
-A simulation tick is roughly:
-
-1. Move cars from junction output buffers into roads if the roads have space.
-2. Advance cars already travelling on roads.
-3. Handle cars that arrive at junctions or destinations.
-4. Let sources attempt to generate new cars.
-5. Sample statistics and render the frame.
-
-The exact order may depend on the implementation, but the important idea is:
-
-```text
-queues feed roads, roads feed junctions, sources inject only when possible
-```
+Outputs are written to `output/` including the generated GIF and statistics.
 
 ---
 
 ## Visualization guide
 
-### Node colors
+### Moving circles
 
-| Node type | Meaning |
-|---|---|
-| Source-colored node | A junction where cars are generated |
-| Sink-colored node | A destination / traffic exit |
-| Transit-colored node | Normal road junction |
+Cars travelling on roads
 
-### Car colors
+### Dots near nodes
 
-Cars are colored by destination. This makes it easier to see how cars going to different destinations split across the road map.
+Cars waiting in output queues
+
+### `+N`
+
+Collapsed count for large queues
 
 ### Road colors
 
-Roads are colored by occupancy:
-
-```text
-green  -> lightly used
-yellow -> moderately used
-red    -> congested
-```
-
-### Queue dots
-
-Small dots around nodes are cars waiting in output queues.
-
-If there are more than 10 waiting cars for a visible queue region, the display uses `+N` so the GIF does not become cluttered.
+Green → light traffic
+Yellow → moderate
+Red → heavy congestion
 
 ---
 
-## Statistics
+## Summary
 
-The simulator records:
+This is a **road traffic generator**, not a network simulator.
 
-- total generated cars
-- total completed cars
-- active cars still in the system
-- throughput
-- average wait time
-- average travel time
-- average queue length
-- busiest road
-- road occupancy over time
+It models:
 
-The JSON file gives summary numbers. The PDF gives plots over the full run.
+* cars moving through a road map
+* queues forming at exits
+* congestion affecting routing
+* sources reacting to available capacity
 
----
+All behavior emerges from:
 
-## Defining your own road network
-
-To define a new road traffic scenario:
-
-1. Add junctions with positions.
-2. Add directed roads between junctions.
-3. Set road capacities and travel times.
-4. Add one or more sources.
-5. Add one or more sinks.
-6. Optionally set global or per-junction output buffer capacity.
-7. Run:
-
-```bash
-python3 main.py my_network.json
-```
-
-Example topology:
-
-```text
-        J_B
-       /   \
-S -> J_A   J_D -> K
-       \   /
-        J_C
-```
-
-This lets cars choose between two paths. If one path's output buffers or roads fill up, cars can reroute through the other path if it is still usable.
-
----
-
-## Simplifying assumptions
-
-This is a road traffic generator/simulator, but it is still intentionally simple:
-
-- Time advances in discrete ticks.
-- Cars are identical.
-- There is no lane-changing model.
-- There are no traffic lights unless explicitly added in future code.
-- Roads are directed.
-- Junctions route cars using queue availability and path cost.
-- Output queues model waiting cars near exits from a junction.
-- Source throttling prevents unlimited injection when the downstream road map is blocked.
+* road capacity
+* junction output buffers
+* adaptive routing
+* source throttling
 
 ---
 
 ## License
 
-Educational use.
+Educational use
+
