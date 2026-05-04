@@ -1,32 +1,41 @@
 {
+  "_comment": "Source/sink stubs added. S_W and S_SW are external source stubs. K_N and K_E are external sink stubs. All connected one-way into/out of transit grid.",
   "junctions": [
-    {"name": "W",  "pos": [0.0, 1.0]},
-    {"name": "NW", "pos": [1.0, 2.0]},
-    {"name": "SW", "pos": [1.0, 0.0]},
-    {"name": "NE", "pos": [3.0, 2.0]},
-    {"name": "SE", "pos": [3.0, 0.0]},
-    {"name": "N",  "pos": [2.0, 3.0]},
-    {"name": "E",  "pos": [4.0, 1.0]}
+    {"name": "S_W",  "pos": [-1.0,  1.0]},
+    {"name": "S_SW", "pos": [ 1.0, -1.0]},
+    {"name": "W",    "pos": [ 0.0,  1.0]},
+    {"name": "NW",   "pos": [ 1.0,  2.0]},
+    {"name": "SW",   "pos": [ 1.0,  0.0]},
+    {"name": "NE",   "pos": [ 3.0,  2.0]},
+    {"name": "SE",   "pos": [ 3.0,  0.0]},
+    {"name": "N",    "pos": [ 2.0,  3.0]},
+    {"name": "E",    "pos": [ 4.0,  1.0]},
+    {"name": "K_N",  "pos": [ 2.0,  4.0]},
+    {"name": "K_E",  "pos": [ 5.0,  1.0]}
   ],
   "roads": [
-    {"name": "R1",  "from": "W",  "to": "NW", "capacity": 2, "travel_time": 2},
-    {"name": "R2",  "from": "W",  "to": "SW", "capacity": 2, "travel_time": 2},
-    {"name": "R3",  "from": "NW", "to": "NE", "capacity": 3, "travel_time": 3},
-    {"name": "R4",  "from": "SW", "to": "SE", "capacity": 3, "travel_time": 3},
-    {"name": "R5",  "from": "NW", "to": "SW", "capacity": 1, "travel_time": 2},
-    {"name": "R6",  "from": "SW", "to": "NW", "capacity": 1, "travel_time": 2},
-    {"name": "R7",  "from": "NE", "to": "SE", "capacity": 1, "travel_time": 2},
-    {"name": "R8",  "from": "SE", "to": "NE", "capacity": 1, "travel_time": 2},
-    {"name": "R9",  "from": "NW", "to": "N",  "capacity": 2, "travel_time": 2},
-    {"name": "R10", "from": "NE", "to": "N",  "capacity": 2, "travel_time": 2},
-    {"name": "R11", "from": "NE", "to": "E",  "capacity": 2, "travel_time": 2},
-    {"name": "R12", "from": "SE", "to": "E",  "capacity": 2, "travel_time": 2}
+    {"name": "R_SW_W",   "from": "S_W",  "to": "W",   "capacity": 2, "travel_time": 2},
+    {"name": "R_SSW_SW", "from": "S_SW", "to": "SW",  "capacity": 2, "travel_time": 2},
+    {"name": "R_N_KN",   "from": "N",    "to": "K_N", "capacity": 2, "travel_time": 2},
+    {"name": "R_E_KE",   "from": "E",    "to": "K_E", "capacity": 2, "travel_time": 2},
+    {"name": "R1",       "from": "W",    "to": "NW",  "capacity": 2, "travel_time": 2},
+    {"name": "R2",       "from": "W",    "to": "SW",  "capacity": 2, "travel_time": 2},
+    {"name": "R3",       "from": "NW",   "to": "NE",  "capacity": 3, "travel_time": 3},
+    {"name": "R4",       "from": "SW",   "to": "SE",  "capacity": 3, "travel_time": 3},
+    {"name": "R5",       "from": "NW",   "to": "SW",  "capacity": 1, "travel_time": 2},
+    {"name": "R6",       "from": "SW",   "to": "NW",  "capacity": 1, "travel_time": 2},
+    {"name": "R7",       "from": "NE",   "to": "SE",  "capacity": 1, "travel_time": 2},
+    {"name": "R8",       "from": "SE",   "to": "NE",  "capacity": 1, "travel_time": 2},
+    {"name": "R9",       "from": "NW",   "to": "N",   "capacity": 2, "travel_time": 2},
+    {"name": "R10",      "from": "NE",   "to": "N",   "capacity": 2, "travel_time": 2},
+    {"name": "R11",      "from": "NE",   "to": "E",   "capacity": 2, "travel_time": 2},
+    {"name": "R12",      "from": "SE",   "to": "E",   "capacity": 2, "travel_time": 2}
   ],
   "sources": [
-    {"id": "S1", "junction": "W",  "destination": "N", "mode": "constant", "interval": 3},
-    {"id": "S2", "junction": "W",  "destination": "E", "mode": "constant", "interval": 4},
-    {"id": "S3", "junction": "SW", "destination": "N", "mode": "poisson",  "rate": 0.3},
-    {"id": "S4", "junction": "SW", "destination": "E", "mode": "poisson",  "rate": 0.25}
+    {"id": "S1", "junction": "S_W",  "destination": "K_N", "mode": "constant", "interval": 3},
+    {"id": "S2", "junction": "S_W",  "destination": "K_E", "mode": "constant", "interval": 4},
+    {"id": "S3", "junction": "S_SW", "destination": "K_N", "mode": "poisson",  "rate": 0.3},
+    {"id": "S4", "junction": "S_SW", "destination": "K_E", "mode": "poisson",  "rate": 0.25}
   ],
-  "sinks": ["N", "E"]
+  "sinks": ["K_N", "K_E"]
 }

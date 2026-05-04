@@ -36,6 +36,7 @@ class TrafficSimulator:
         self.sources: List[TrafficSource] = []
         self.sinks: Dict[str, Sink] = {}
         self.junction_positions: Dict[str, tuple] = {}
+        self.junction_labels: Dict[str, str] = {}
 
         self.vehicle_counter = 0
         self.generated = 0

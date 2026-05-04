@@ -23,30 +23,12 @@ DEST_COLORS = [
     "#6D4C41",  # brown
 ]
 
-# ── Professor diagram labels ──────────────────────────────────────────────────
-# Maps junction name -> label shown inside the node circle.
-# Outer column nodes are source/sink stubs; inner 2x3 grid are transit nodes.
-_JUNCTION_LABEL = {
-    # Left stub column (sources / sinks)
-    "J_TL": "S1,S4",
-    "J_ML": "S2,S5",
-    "J_BL": "K3,K4",
-    # Right stub column (source / sinks)
-    "J_TR": "K2",
-    "J_MR": "S3",
-    "J_BR": "K1,K5",
-    # Inner transit grid — no label
-    "J_TML": "",
-    "J_TMR": "",
-    "J_MML": "",
-    "J_MMR": "",
-    "J_BML": "",
-    "J_BMR": "",
-}
-
-# Which junctions are source-type vs sink-type (determines circle color)
-_SOURCE_JUNCTIONS = {"J_TL", "J_ML", "J_MR"}
-_SINK_JUNCTIONS   = {"J_TR", "J_BL", "J_BR"}
+# ── Junction label helpers ────────────────────────────────────────────────────
+# These are now computed dynamically from the simulator in Visualizer.__init__
+# so they work for any network, not just the professor grid.
+_JUNCTION_LABEL   = {}   # populated per-instance
+_SOURCE_JUNCTIONS = set()
+_SINK_JUNCTIONS   = set()
 
 
 class Visualizer:
@@ -65,6 +47,27 @@ class Visualizer:
 
         self.pos = self._build_positions()
         self.dest_color_map = self._build_dest_colors()
+
+        # ── Build dynamic junction labels and source/sink sets ────────────────
+        # Group source IDs by junction
+        src_ids_by_junction = {}
+        for src in self.sim.sources:
+            src_ids_by_junction.setdefault(src.junction, []).append(src.source_id)
+
+        sink_junctions = set(self.sim.sinks.keys())  # sinks dict keyed by junction name
+
+        global _JUNCTION_LABEL, _SOURCE_JUNCTIONS, _SINK_JUNCTIONS
+        _JUNCTION_LABEL   = {}
+        _SOURCE_JUNCTIONS = set(src_ids_by_junction.keys())
+        _SINK_JUNCTIONS   = sink_junctions
+
+        for jn in self.sim.junctions:
+            if jn in src_ids_by_junction:
+                _JUNCTION_LABEL[jn] = ",".join(src_ids_by_junction[jn])
+            elif jn in sink_junctions:
+                # Use custom label from JSON if provided, else strip J_ prefix
+                custom = self.sim.junction_labels.get(jn) if hasattr(self.sim, 'junction_labels') else None
+                _JUNCTION_LABEL[jn] = custom if custom else jn.replace("J_", "")
 
         self.frame_paths = []
         self._prev_snapshot = None

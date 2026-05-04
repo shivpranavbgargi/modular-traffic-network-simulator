@@ -36,6 +36,10 @@ def load_network(path: str, sim_time: int = 40) -> TrafficSimulator:
     for sink_name in cfg["sinks"]:
         sim.add_sink(Sink(junction=sink_name))
 
+    # Optional display labels for any junction (e.g. K1,K5 for sink nodes)
+    for jn, lbl in cfg.get("labels", {}).items():
+        sim.junction_labels[jn] = lbl
+
     return sim
 
 

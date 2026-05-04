@@ -55,5 +55,11 @@
     {"id": "S3", "junction": "J_MR", "destination": "J_BL", "mode": "constant", "interval": 2}
   ],
 
-  "sinks": ["J_TR", "J_BL", "J_BR"]
+  "sinks": ["J_TR", "J_BL", "J_BR"],
+
+  "labels": {
+    "J_TR": "K2",
+    "J_BL": "K3,K4",
+    "J_BR": "K1,K5"
+  }
 }
