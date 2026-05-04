@@ -46,9 +46,11 @@ modular-network-traffic-simulator/
 ├── main.py                 # network definition + entry point
 ├── network.json            # example: 5-junction network, single destination
 ├── network-2.json          # example: 7-junction network, two destinations
+├── test.json          # example: 7-junction network, two destinations
 ├── requirements.txt
 ├── docs/                   # sample outputs referenced from this README
 │   └── network-2.gif
+│   └── test.gif
 └── traffic_sim/            # the reusable library
     ├── __init__.py
     ├── vehicles.py
@@ -93,6 +95,7 @@ with three sources all routing to junction `E`.
 ```bash
 python3 main.py network.json
 python3 main.py network-2.json
+python3 main.py test.json
 ```
 
 Each run writes three files into `output/`:
@@ -206,6 +209,11 @@ A typical 40-tick run on this network produces something like:
 | busiest road | R9 |
 
 Exact numbers vary run to run because the Poisson sources are unseeded.
+
+---
+## Test
+
+![test simulation](docs/test.gif)
 
 ---
 
