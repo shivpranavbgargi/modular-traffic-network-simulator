@@ -6,7 +6,7 @@ from traffic_sim import Sink, TrafficSimulator, TrafficSource
 
 def load_network(path: str, sim_time: int = 40) -> TrafficSimulator:
     try:
-        with open(path) as f:
+        with open(path, "r", encoding="utf-8") as f:
             cfg = json.load(f)
     except FileNotFoundError:
         print(f"Error: network file '{path}' not found.")
@@ -15,42 +15,26 @@ def load_network(path: str, sim_time: int = 40) -> TrafficSimulator:
         print(f"Error: could not parse '{path}': {e}")
         sys.exit(1)
 
-    sim = TrafficSimulator(sim_time=sim_time, output_dir="output")
+    # Preserve the old default from this main.py unless the JSON explicitly sets sim_time.
+    cfg = dict(cfg)
+    cfg.setdefault("sim_time", sim_time)
+    cfg.setdefault("output_dir", "output")
 
-    for j in cfg["junctions"]:
-        sim.add_junction(j["name"], pos=tuple(j["pos"]))
-
-    for r in cfg["roads"]:
-        sim.add_road(r["name"], r["from"], r["to"], r["capacity"], r["travel_time"])
-
-    for s in cfg["sources"]:
-        sim.add_source(TrafficSource(
-            source_id=s["id"],
-            junction=s["junction"],
-            destination=s["destination"],
-            mode=s.get("mode", "constant"),
-            interval=s.get("interval", 3),
-            rate=s.get("rate", 0.3),
-        ))
-
-    for sink_name in cfg["sinks"]:
-        sim.add_sink(Sink(junction=sink_name))
-
-    # Optional display labels for any junction (e.g. K1,K5 for sink nodes)
-    for jn, lbl in cfg.get("labels", {}).items():
-        sim.junction_labels[jn] = lbl
-
-    return sim
+    try:
+        return TrafficSimulator.from_json(cfg)
+    except (KeyError, TypeError, ValueError) as e:
+        print(f"Error: invalid network config '{path}': {e}")
+        sys.exit(1)
 
 
 def build_demo_network() -> TrafficSimulator:
-    sim = TrafficSimulator(sim_time=40, output_dir="output")
+    sim = TrafficSimulator(sim_time=40, output_dir="output", output_buffer_capacity=10)
 
-    sim.add_junction("A", pos=(0.0, 1.0))
-    sim.add_junction("B", pos=(1.2, 1.8))
-    sim.add_junction("C", pos=(1.2, 0.2))
-    sim.add_junction("D", pos=(2.5, 1.0))
-    sim.add_junction("E", pos=(3.6, 1.0))
+    sim.add_junction("A", pos=(0.0, 1.0), output_buffer_capacity=10)
+    sim.add_junction("B", pos=(1.2, 1.8), output_buffer_capacity=10)
+    sim.add_junction("C", pos=(1.2, 0.2), output_buffer_capacity=10)
+    sim.add_junction("D", pos=(2.5, 1.0), output_buffer_capacity=10)
+    sim.add_junction("E", pos=(3.6, 1.0), output_buffer_capacity=10)
 
     sim.add_road("R1", "A", "B", capacity=3, travel_time=3)
     sim.add_road("R2", "A", "C", capacity=2, travel_time=2)

@@ -1,8 +1,9 @@
 import os
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Tuple
 
 import imageio.v2 as imageio
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
@@ -26,9 +27,9 @@ DEST_COLORS = [
 # ── Junction label helpers ────────────────────────────────────────────────────
 # These are now computed dynamically from the simulator in Visualizer.__init__
 # so they work for any network, not just the professor grid.
-_JUNCTION_LABEL   = {}   # populated per-instance
+_JUNCTION_LABEL = {}  # populated per-instance
 _SOURCE_JUNCTIONS = set()
-_SINK_JUNCTIONS   = set()
+_SINK_JUNCTIONS = set()
 
 
 class Visualizer:
@@ -57,16 +58,20 @@ class Visualizer:
         sink_junctions = set(self.sim.sinks.keys())  # sinks dict keyed by junction name
 
         global _JUNCTION_LABEL, _SOURCE_JUNCTIONS, _SINK_JUNCTIONS
-        _JUNCTION_LABEL   = {}
+        _JUNCTION_LABEL = {}
         _SOURCE_JUNCTIONS = set(src_ids_by_junction.keys())
-        _SINK_JUNCTIONS   = sink_junctions
+        _SINK_JUNCTIONS = sink_junctions
 
         for jn in self.sim.junctions:
             if jn in src_ids_by_junction:
                 _JUNCTION_LABEL[jn] = ",".join(src_ids_by_junction[jn])
             elif jn in sink_junctions:
                 # Use custom label from JSON if provided, else strip J_ prefix
-                custom = self.sim.junction_labels.get(jn) if hasattr(self.sim, 'junction_labels') else None
+                custom = (
+                    self.sim.junction_labels.get(jn)
+                    if hasattr(self.sim, "junction_labels")
+                    else None
+                )
                 _JUNCTION_LABEL[jn] = custom if custom else jn.replace("J_", "")
 
         self.frame_paths = []
@@ -124,11 +129,11 @@ class Visualizer:
         cx = (sx1 + sx2) / 2 + rad * sdy
         cy = (sy1 + sy2) / 2 - rad * sdx
         # Quadratic Bezier position
-        bx = (1-t)**2 * sx1 + 2*(1-t)*t * cx + t**2 * sx2
-        by = (1-t)**2 * sy1 + 2*(1-t)*t * cy + t**2 * sy2
+        bx = (1 - t) ** 2 * sx1 + 2 * (1 - t) * t * cx + t**2 * sx2
+        by = (1 - t) ** 2 * sy1 + 2 * (1 - t) * t * cy + t**2 * sy2
         # Tangent for perpendicular stagger
-        tx = 2*(1-t)*(cx - sx1) + 2*t*(sx2 - cx)
-        ty = 2*(1-t)*(cy - sy1) + 2*t*(sy2 - cy)
+        tx = 2 * (1 - t) * (cx - sx1) + 2 * t * (sx2 - cx)
+        ty = 2 * (1 - t) * (cy - sy1) + 2 * t * (sy2 - cy)
         tn = (tx**2 + ty**2) ** 0.5 or 1.0
         ux, uy = -ty / tn, tx / tn
         return bx, by, ux, uy
@@ -161,21 +166,39 @@ class Visualizer:
         self._prev_snapshot = curr
 
     def _draw_junctions(self, ax):
-        node_r = 0.26   # circle radius in data coords
+        node_r = 0.26  # circle radius in data coords
 
         for node in self.graph.nodes():
             x, y = self.pos[node]
 
             if node in _SOURCE_JUNCTIONS:
-                fc, ec, lw = "#BBDEFB", "#1565C0", 2.8   # light-blue fill, dark-blue border
+                fc, ec, lw = (
+                    "#BBDEFB",
+                    "#1565C0",
+                    2.8,
+                )  # light-blue fill, dark-blue border
             elif node in _SINK_JUNCTIONS:
-                fc, ec, lw = "#FFE0B2", "#E65100", 2.8   # light-amber fill, dark-orange border
+                fc, ec, lw = (
+                    "#FFE0B2",
+                    "#E65100",
+                    2.8,
+                )  # light-amber fill, dark-orange border
             else:
-                fc, ec, lw = "#F3E5F5", "#6A1B9A", 2.0   # light-lavender fill, purple border
+                fc, ec, lw = (
+                    "#F3E5F5",
+                    "#6A1B9A",
+                    2.0,
+                )  # light-lavender fill, purple border
 
-            circle = plt.Circle((x, y), node_r,
-                                 facecolor=fc, edgecolor=ec, linewidth=lw,
-                                 zorder=5, transform=ax.transData)
+            circle = plt.Circle(
+                (x, y),
+                node_r,
+                facecolor=fc,
+                edgecolor=ec,
+                linewidth=lw,
+                zorder=5,
+                transform=ax.transData,
+            )
             ax.add_patch(circle)
 
             # Label inside circle
@@ -183,17 +206,40 @@ class Visualizer:
             short = node.replace("J_", "")
             if lbl:
                 # Source/sink: show identifier in brackets, junction name on second line
-                ax.text(x, y + 0.06, f"({lbl})",
-                        ha="center", va="center", fontsize=5.5,
-                        fontweight="bold", color="#1a1a1a", zorder=6)
-                ax.text(x, y - 0.07, short,
-                        ha="center", va="center", fontsize=5.5,
-                        color="#333", zorder=6)
+                ax.text(
+                    x,
+                    y + 0.06,
+                    f"({lbl})",
+                    ha="center",
+                    va="center",
+                    fontsize=5.5,
+                    fontweight="bold",
+                    color="#1a1a1a",
+                    zorder=6,
+                )
+                ax.text(
+                    x,
+                    y - 0.07,
+                    short,
+                    ha="center",
+                    va="center",
+                    fontsize=5.5,
+                    color="#333",
+                    zorder=6,
+                )
             else:
                 # Transit: just the junction name
-                ax.text(x, y, short,
-                        ha="center", va="center", fontsize=6.5,
-                        fontweight="bold", color="#1a1a1a", zorder=6)
+                ax.text(
+                    x,
+                    y,
+                    short,
+                    ha="center",
+                    va="center",
+                    fontsize=6.5,
+                    fontweight="bold",
+                    color="#1a1a1a",
+                    zorder=6,
+                )
 
     def _draw_edges(self, ax):
         """Draw road arrows using FancyArrowPatch so arc geometry exactly matches
@@ -227,13 +273,15 @@ class Visualizer:
             sy2 = y2 - node_r * uy
 
             arrow = mpatches.FancyArrowPatch(
-                (sx1, sy1), (sx2, sy2),
+                (sx1, sy1),
+                (sx2, sy2),
                 connectionstyle=f"arc3,rad={self._ARC_RAD}",
                 arrowstyle="-|>",
                 mutation_scale=14,
                 linewidth=lw,
                 color=color,
-                shrinkA=0, shrinkB=0,
+                shrinkA=0,
+                shrinkB=0,
                 zorder=2,
             )
             ax.add_patch(arrow)
@@ -257,63 +305,201 @@ class Visualizer:
                 px, py = prev_pos[vid][0], prev_pos[vid][1]
                 a = 1.0 - alpha
 
-            ax.plot(px, py, "o",
-                    ms=10, color=color,
-                    mec="white", mew=2.0,
-                    zorder=10, alpha=a)
+            ax.plot(
+                px,
+                py,
+                "o",
+                ms=10,
+                color=color,
+                mec="white",
+                mew=2.0,
+                zorder=10,
+                alpha=a,
+            )
+
+    # def _draw_queues(self, ax):
+    #     """Show vehicles waiting at junctions as small squares arranged in a ring."""
+    #     for junction in self.sim.junctions.values():
+    #         bx, by = self.pos[junction.name]
+    #         queued = [v for q in junction.input_buffers.values() for v in q]
+    #         total = len(queued)
+    #         if total == 0:
+    #             continue
+    #         show = min(total, 12)
+    #         for i, v in enumerate(queued[:show]):
+    #             color = self.dest_color_map.get(v.destination, "#888")
+    #             angle = (i / show) * 2 * np.pi - np.pi / 2
+    #             r = 0.32
+    #             ax.plot(bx + r * np.cos(angle),
+    #                     by + r * np.sin(angle),
+    #                     "s", ms=5, color=color,
+    #                     mec="white", mew=0.7, zorder=9)
+    #         if total > show:
+    #             ax.text(bx, by + 0.42,
+    #                     f"+{total - show}",
+    #                     ha="center", va="bottom",
+    #                     fontsize=6.5, color="#333", zorder=9)
+
+    def _get_output_direction(self, junction_name, road_name):
+        """Direction of an outgoing road relative to its start junction."""
+        road = self.sim.roads.get(road_name)
+        if not road:
+            return None
+
+        x1, y1 = self.pos[road.start]
+        x2, y2 = self.pos[road.end]
+        dx, dy = x2 - x1, y2 - y1
+
+        if abs(dx) > abs(dy):
+            return "E" if dx > 0 else "W"
+        else:
+            return "N" if dy > 0 else "S"
+
+    def _get_direction(self, junction_name, road_name):
+        road = self.sim.roads.get(road_name)
+        if not road:
+            return None
+    
+        xj, yj = self.pos[junction_name]
+    
+        # For output buffers, direction should be from junction -> road.end
+        if road.start == junction_name:
+            xo, yo = self.pos[road.end]
+        else:
+            xo, yo = self.pos[road.start]
+    
+        dx = xo - xj
+        dy = yo - yj
+    
+        if abs(dx) > abs(dy):
+            return "E" if dx > 0 else "W"
+        else:
+            return "N" if dy > 0 else "S"
 
     def _draw_queues(self, ax):
-        """Show vehicles waiting at junctions as small squares arranged in a ring."""
+        """Draw output buffer queues aligned with outgoing roads, with +N support."""
+        MAX_DRAW = 10
+    
         for junction in self.sim.junctions.values():
             bx, by = self.pos[junction.name]
-            queued = [v for q in junction.input_buffers.values() for v in q]
-            total = len(queued)
-            if total == 0:
-                continue
-            show = min(total, 12)
-            for i, v in enumerate(queued[:show]):
-                color = self.dest_color_map.get(v.destination, "#888")
-                angle = (i / show) * 2 * np.pi - np.pi / 2
-                r = 0.32
-                ax.plot(bx + r * np.cos(angle),
-                        by + r * np.sin(angle),
-                        "s", ms=5, color=color,
-                        mec="white", mew=0.7, zorder=9)
-            if total > show:
-                ax.text(bx, by + 0.42,
-                        f"+{total - show}",
-                        ha="center", va="bottom",
-                        fontsize=6.5, color="#333", zorder=9)
+    
+            # Offsets for directions
+            entry_offsets = {
+                "N": (0, 0.4, 0, 0.1),
+                "S": (0, -0.4, 0, -0.1),
+                "E": (0.4, 0, 0.1, 0),
+                "W": (-0.4, 0, -0.1, 0),
+            }
+    
+            # IMPORTANT: use output buffers now
+            for road_name, q in junction.output_buffers.items():
+                direction = self._get_direction(junction.name, road_name)
+                if direction not in entry_offsets:
+                    continue
+    
+                ox, oy, sx, sy = entry_offsets[direction]
+                total = len(q)
+    
+                # Draw dots (up to MAX_DRAW)
+                for i, v in enumerate(list(q)[:MAX_DRAW]):
+                    color = self.dest_color_map.get(v.destination, "#888")
+                    ax.plot(
+                        bx + ox + (i * sx),
+                        by + oy + (i * sy),
+                        "o",
+                        ms=5,
+                        color=color,
+                        mec="white",
+                        mew=0.7,
+                        zorder=9,
+                    )
+    
+                # Draw +N at correct lane end
+                if total > MAX_DRAW:
+                    extra = total - MAX_DRAW
+    
+                    x = bx + ox + (MAX_DRAW * sx)
+                    y = by + oy + (MAX_DRAW * sy)
+    
+                    # small offset outward so it doesn't overlap
+                    OFFSET = 0.05
+                    x += OFFSET * (1 if sx >= 0 else -1)
+                    y += OFFSET * (1 if sy >= 0 else -1)
+    
+                    ax.text(
+                        x,
+                        y,
+                        f"+{extra}",
+                        fontsize=7,
+                        color="black",
+                        ha="center",
+                        va="center",
+                        zorder=10,
+                        bbox=dict(facecolor="white", edgecolor="none", alpha=0.7),
+                    )
 
     def _draw_stats(self, ax_s):
         ax_s.axis("off")
         stats = self.sim.summary_stats()
 
-        ax_s.text(0.5, 0.985, "Statistics", transform=ax_s.transAxes,
-                  ha="center", va="top", fontsize=11, fontweight="bold")
+        ax_s.text(
+            0.5,
+            0.985,
+            "Statistics",
+            transform=ax_s.transAxes,
+            ha="center",
+            va="top",
+            fontsize=11,
+            fontweight="bold",
+        )
 
         rows = [
-            ("Tick",       str(self.sim.current_time)),
-            ("Generated",  str(stats["generated"])),
-            ("Completed",  str(stats["completed"])),
-            ("Active",     str(stats["active"])),
+            ("Tick", str(self.sim.current_time)),
+            ("Generated", str(stats["generated"])),
+            ("Throttled", str(stats.get("throttled", 0))),
+            ("Completed", str(stats["completed"])),
+            ("Active", str(stats["active"])),
             ("Throughput", f"{stats['throughput']:.2f}/tick"),
-            ("Avg wait",   f"{stats['avg_wait']:.1f} ticks"),
+            ("Avg wait", f"{stats['avg_wait']:.1f} ticks"),
             ("Avg travel", f"{stats['avg_travel_time']:.1f} ticks"),
-            ("Busiest",    str(stats["busiest_road"]) if stats["busiest_road"] else "N/A"),
+            ("Busiest", str(stats["busiest_road"]) if stats["busiest_road"] else "N/A"),
         ]
         y = 0.90
         for lbl, val in rows:
-            ax_s.text(0.04, y, lbl + ":", transform=ax_s.transAxes,
-                      ha="left", va="top", fontsize=8.5, color="#444")
-            ax_s.text(0.97, y, val, transform=ax_s.transAxes,
-                      ha="right", va="top", fontsize=8.5, fontweight="bold")
+            ax_s.text(
+                0.04,
+                y,
+                lbl + ":",
+                transform=ax_s.transAxes,
+                ha="left",
+                va="top",
+                fontsize=8.5,
+                color="#444",
+            )
+            ax_s.text(
+                0.97,
+                y,
+                val,
+                transform=ax_s.transAxes,
+                ha="right",
+                va="top",
+                fontsize=8.5,
+                fontweight="bold",
+            )
             y -= 0.082
 
         # ── Legend (replaces road occupancy bars) ─────────────────────────────
         y -= 0.02
-        ax_s.text(0.5, y, "Legend", transform=ax_s.transAxes,
-                  ha="center", va="top", fontsize=9, fontweight="bold")
+        ax_s.text(
+            0.5,
+            y,
+            "Legend",
+            transform=ax_s.transAxes,
+            ha="center",
+            va="top",
+            fontsize=9,
+            fontweight="bold",
+        )
         y -= 0.06
 
         # Node type swatches
@@ -322,32 +508,72 @@ class Visualizer:
             ("#FFE0B2", "#E65100", "Sink junction"),
             ("#F3E5F5", "#6A1B9A", "Transit junction"),
         ]
-        sw = 0.10   # swatch width
+        sw = 0.10  # swatch width
         sh = 0.032  # swatch height
         gap = 0.048
 
         for fc, ec, label in node_entries:
-            ax_s.add_patch(mpatches.FancyBboxPatch(
-                (0.04, y - sh), sw, sh,
-                boxstyle="round,pad=0.005",
-                facecolor=fc, edgecolor=ec, linewidth=1.5,
-                transform=ax_s.transAxes, clip_on=False))
-            ax_s.text(0.17, y - sh / 2, label, transform=ax_s.transAxes,
-                      ha="left", va="center", fontsize=8, color="#222")
+            ax_s.add_patch(
+                mpatches.FancyBboxPatch(
+                    (0.04, y - sh),
+                    sw,
+                    sh,
+                    boxstyle="round,pad=0.005",
+                    facecolor=fc,
+                    edgecolor=ec,
+                    linewidth=1.5,
+                    transform=ax_s.transAxes,
+                    clip_on=False,
+                )
+            )
+            ax_s.text(
+                0.17,
+                y - sh / 2,
+                label,
+                transform=ax_s.transAxes,
+                ha="left",
+                va="center",
+                fontsize=8,
+                color="#222",
+            )
             y -= gap
 
         y -= 0.01
-        ax_s.text(0.5, y, "Packet destinations", transform=ax_s.transAxes,
-                  ha="center", va="top", fontsize=8, color="#555")
+        ax_s.text(
+            0.5,
+            y,
+            "Packet destinations",
+            transform=ax_s.transAxes,
+            ha="center",
+            va="top",
+            fontsize=8,
+            color="#555",
+        )
         y -= 0.045
 
         for dest, color in sorted(self.dest_color_map.items()):
             short = _JUNCTION_LABEL.get(dest, dest.replace("J_", ""))
-            ax_s.plot([0.04 + sw / 2], [y - sh / 2], "o",
-                      ms=9, color=color, mec="white", mew=1.2,
-                      transform=ax_s.transAxes, clip_on=False)
-            ax_s.text(0.17, y - sh / 2, f"→ {short}", transform=ax_s.transAxes,
-                      ha="left", va="center", fontsize=8, color="#222")
+            ax_s.plot(
+                [0.04 + sw / 2],
+                [y - sh / 2],
+                "o",
+                ms=9,
+                color=color,
+                mec="white",
+                mew=1.2,
+                transform=ax_s.transAxes,
+                clip_on=False,
+            )
+            ax_s.text(
+                0.17,
+                y - sh / 2,
+                f"→ {short}",
+                transform=ax_s.transAxes,
+                ha="left",
+                va="center",
+                fontsize=8,
+                color="#222",
+            )
             y -= gap
 
         ax_s.set_xlim(0, 1)
@@ -355,7 +581,9 @@ class Visualizer:
 
     def _emit_frame(self, t, prev, curr, alpha):
         fig, (ax, ax_s) = plt.subplots(
-            1, 2, figsize=(13, 7),
+            1,
+            2,
+            figsize=(13, 7),
             gridspec_kw={"width_ratios": [3, 1]},
         )
         fig.patch.set_facecolor("#F5F5F5")
@@ -368,8 +596,12 @@ class Visualizer:
         self._draw_queues(ax)
 
         tick_disp = max(0.0, t - 1 + alpha) if t > 0 else 0.0
-        ax.set_title(f"Traffic Network Simulation   t = {tick_disp:.1f}",
-                     fontsize=12, fontweight="bold", pad=8)
+        ax.set_title(
+            f"Traffic Network Simulation   t = {tick_disp:.1f}",
+            fontsize=12,
+            fontweight="bold",
+            pad=8,
+        )
         ax.axis("off")
         ax.set_xlim(self._xlim)
         ax.set_ylim(self._ylim)
