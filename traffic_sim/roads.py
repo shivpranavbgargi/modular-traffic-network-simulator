@@ -15,7 +15,14 @@ class Road:
     total_entered: int = 0
 
     def has_space(self) -> bool:
-        return len(self.vehicles) < self.capacity
+        # Pipeline model: road can hold at most `capacity` packets,
+        # BUT a new packet can only enter if the tail slot (remaining == travel_time)
+        # is free — i.e. no packet entered on the same tick.
+        if len(self.vehicles) >= self.capacity:
+            return False
+        if self.vehicles and self.vehicles[-1][1] == self.travel_time:
+            return False
+        return True
 
     def enter(self, vehicle: Vehicle) -> bool:
         if not self.has_space():

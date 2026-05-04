@@ -1,0 +1,59 @@
+{
+  "_comment": "Professor 3x3 grid corrected. 4 columns: outer stubs (sources/sinks) connect one-way to inner 2-column transit grid. Middle 2 cols fully bidirectional horizontally and vertically.",
+
+  "junctions": [
+    {"name": "J_TL",  "pos": [0.0, 4.0]},
+    {"name": "J_TML", "pos": [1.5, 4.0]},
+    {"name": "J_TMR", "pos": [3.0, 4.0]},
+    {"name": "J_TR",  "pos": [4.5, 4.0]},
+
+    {"name": "J_ML",  "pos": [0.0, 2.0]},
+    {"name": "J_MML", "pos": [1.5, 2.0]},
+    {"name": "J_MMR", "pos": [3.0, 2.0]},
+    {"name": "J_MR",  "pos": [4.5, 2.0]},
+
+    {"name": "J_BL",  "pos": [0.0, 0.0]},
+    {"name": "J_BML", "pos": [1.5, 0.0]},
+    {"name": "J_BMR", "pos": [3.0, 0.0]},
+    {"name": "J_BR",  "pos": [4.5, 0.0]}
+  ],
+
+  "roads": [
+    {"name": "R_TL_TML",  "from": "J_TL",  "to": "J_TML", "capacity": 3, "travel_time": 3},
+    {"name": "R_ML_MML",  "from": "J_ML",  "to": "J_MML", "capacity": 3, "travel_time": 3},
+    {"name": "R_BML_BL",  "from": "J_BML", "to": "J_BL",  "capacity": 3, "travel_time": 3},
+
+    {"name": "R_TMR_TR",  "from": "J_TMR", "to": "J_TR",  "capacity": 3, "travel_time": 3},
+    {"name": "R_MR_MMR",  "from": "J_MR",  "to": "J_MMR", "capacity": 3, "travel_time": 3},
+    {"name": "R_BMR_BR",  "from": "J_BMR", "to": "J_BR",  "capacity": 3, "travel_time": 3},
+
+    {"name": "R_TML_TMR", "from": "J_TML", "to": "J_TMR", "capacity": 3, "travel_time": 4},
+    {"name": "R_TMR_TML", "from": "J_TMR", "to": "J_TML", "capacity": 3, "travel_time": 4},
+
+    {"name": "R_MML_MMR", "from": "J_MML", "to": "J_MMR", "capacity": 3, "travel_time": 4},
+    {"name": "R_MMR_MML", "from": "J_MMR", "to": "J_MML", "capacity": 3, "travel_time": 4},
+
+    {"name": "R_BML_BMR", "from": "J_BML", "to": "J_BMR", "capacity": 3, "travel_time": 4},
+    {"name": "R_BMR_BML", "from": "J_BMR", "to": "J_BML", "capacity": 3, "travel_time": 4},
+
+    {"name": "R_TML_MML", "from": "J_TML", "to": "J_MML", "capacity": 3, "travel_time": 4},
+    {"name": "R_MML_TML", "from": "J_MML", "to": "J_TML", "capacity": 3, "travel_time": 4},
+    {"name": "R_MML_BML", "from": "J_MML", "to": "J_BML", "capacity": 3, "travel_time": 4},
+    {"name": "R_BML_MML", "from": "J_BML", "to": "J_MML", "capacity": 3, "travel_time": 4},
+
+    {"name": "R_TMR_MMR", "from": "J_TMR", "to": "J_MMR", "capacity": 3, "travel_time": 4},
+    {"name": "R_MMR_TMR", "from": "J_MMR", "to": "J_TMR", "capacity": 3, "travel_time": 4},
+    {"name": "R_MMR_BMR", "from": "J_MMR", "to": "J_BMR", "capacity": 3, "travel_time": 4},
+    {"name": "R_BMR_MMR", "from": "J_BMR", "to": "J_MMR", "capacity": 3, "travel_time": 4}
+  ],
+
+  "sources": [
+    {"id": "S1", "junction": "J_TL", "destination": "J_BR", "mode": "constant", "interval": 2},
+    {"id": "S4", "junction": "J_TL", "destination": "J_BL", "mode": "constant", "interval": 2},
+    {"id": "S2", "junction": "J_ML", "destination": "J_TR", "mode": "constant", "interval": 2},
+    {"id": "S5", "junction": "J_ML", "destination": "J_BR", "mode": "constant", "interval": 2},
+    {"id": "S3", "junction": "J_MR", "destination": "J_BL", "mode": "constant", "interval": 2}
+  ],
+
+  "sinks": ["J_TR", "J_BL", "J_BR"]
+}
